@@ -1,0 +1,15 @@
+{
+  "name": "api-to-do",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.17.2"
+  },
+  "devDependencies": {
+    "@types/nodemon": "^1.19.1"
+  }
+}
