@@ -7,6 +7,21 @@ app.use(express.json())
 
 const users = [];
 
+// Middlewares
+function checkExistsUserAccount(request, response, next) {
+    const { username } = request.headers;
+
+    const user = users.find(user => user.username === username);
+
+    if (!user) {
+        return response.status(401).json({ Error: "User not exists" })
+    };
+
+    request.user = user;
+
+    return next();
+}
+
 app.post("/users", (request, response) => {
     const { name, username } = request.body;
 
@@ -27,5 +42,11 @@ app.post("/users", (request, response) => {
 
     return response.status(201).send(createdUser)
 });
+
+app.get("/todos", checkExistsUserAccount, (request, response) => {
+    const { user } = request;
+
+    return response.json(user.todos);
+})
 
 app.listen(9090);
