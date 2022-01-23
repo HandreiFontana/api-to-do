@@ -14,7 +14,7 @@ function checkExistsUserAccount(request, response, next) {
     const user = users.find(user => user.username === username);
 
     if (!user) {
-        return response.status(401).json({ Error: "User not exists" })
+        return response.status(404).json({ Error: "User not exists" })
     };
 
     request.user = user;
@@ -26,10 +26,32 @@ function checkCreateTodosUserAvailability(request, response, next) {
     const { user } = request;
 
     if (user.premiumPlan === false && user.todos.length == 10) {
-        return response.status(401).json({ Error: "Todo list is full. Please adquire our Premium Plan" })
+        return response.status(403).json({ Error: "Todo list is full. Please adquire our Premium Plan" })
     };
 
     return next()
+}
+
+function checkTodoExists(request, response, next) {
+    const { username } = request.headers;
+
+    const { id } = request.params;
+
+    const findUserWithUsername = users.find(user => user.username === username);
+    if (!findUserWithUsername) {
+        return response.status(404).json({ Error: "User not exists" })
+    };
+
+
+    const todoIsFromUser = findUserWithUsername.todos.find(todo => todo.id === id);
+    if (!todoIsFromUser) {
+        return response.status(404).json({ Error: "To do is not from this user" })
+    }
+
+    request.user = findUserWithUsername;
+    request.todo = todoIsFromUser;
+
+    return next();
 }
 
 // Operators
@@ -79,7 +101,7 @@ app.post("/todos", checkExistsUserAccount, checkCreateTodosUserAvailability, (re
     return response.status(201).send(todo)
 });
 
-app.put("/todos/:id", checkExistsUserAccount, (request, response) => {
+app.put("/todos/:id", checkTodoExists, (request, response) => {
     const { user } = request;
 
     const { title, deadline } = request.body;
