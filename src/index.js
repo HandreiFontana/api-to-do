@@ -47,6 +47,24 @@ app.get("/todos", checkExistsUserAccount, (request, response) => {
     const { user } = request;
 
     return response.json(user.todos);
-})
+});
+
+app.post("/todos", checkExistsUserAccount, (request, response) => {
+    const { user } = request;
+
+    const { title, deadline } = request.body;
+
+    const todo = {
+        id: uuidv4(),
+        title,
+        done: false,
+        deadline: new Date(deadline),
+        created_at: new Date(),
+    }
+
+    user.todos.push(todo);
+
+    return response.status(201).send(todo)
+});
 
 app.listen(9090);
