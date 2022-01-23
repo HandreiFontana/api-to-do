@@ -67,4 +67,23 @@ app.post("/todos", checkExistsUserAccount, (request, response) => {
     return response.status(201).send(todo)
 });
 
+app.put("/todos/:id", checkExistsUserAccount, (request, response) => {
+    const { user } = request;
+
+    const { title, deadline } = request.body;
+
+    const { id } = request.params;
+
+    const findToDoWithId = user.todos.find((todo) => todo.id === id);
+
+    if(!findToDoWithId) {
+        return response.status(401).json({ Error: "Id not found" })
+    };
+
+    findToDoWithId.title = title;
+    findToDoWithId.deadline = new Date(deadline);
+
+    return response.status(201).send(findToDoWithId)
+});
+
 app.listen(9090);
