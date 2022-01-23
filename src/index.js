@@ -102,4 +102,20 @@ app.patch("/todos/:id/done", checkExistsUserAccount, (request, response) => {
     return response.status(201).send()
 });
 
+app.delete("/todos/:id", checkExistsUserAccount, (request, response) => {
+    const { user } = request;
+
+    const { id } = request.params;
+
+    const findToDoWithId = user.todos.find((todo) => todo.id === id);
+
+    if(!findToDoWithId) {
+        return response.status(404).json({ Error: "Id not found" })
+    };
+
+    user.todos.splice(findToDoWithId, 1)
+
+    return response.status(204).send()
+})
+
 app.listen(9090);
