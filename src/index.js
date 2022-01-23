@@ -77,13 +77,29 @@ app.put("/todos/:id", checkExistsUserAccount, (request, response) => {
     const findToDoWithId = user.todos.find((todo) => todo.id === id);
 
     if(!findToDoWithId) {
-        return response.status(401).json({ Error: "Id not found" })
+        return response.status(404).json({ Error: "Id not found" })
     };
 
     findToDoWithId.title = title;
     findToDoWithId.deadline = new Date(deadline);
 
-    return response.status(201).send(findToDoWithId)
+    return response.status(201).send()
+});
+
+app.patch("/todos/:id/done", checkExistsUserAccount, (request, response) => {
+    const { user } = request;
+
+    const { id } = request.params;
+
+    const findToDoWithId = user.todos.find((todo) => todo.id === id);
+
+    if(!findToDoWithId) {
+        return response.status(404).json({ Error: "Id not found" })
+    };
+
+    findToDoWithId.done = true;
+
+    return response.status(201).send()
 });
 
 app.listen(9090);
