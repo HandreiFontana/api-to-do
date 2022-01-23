@@ -22,6 +22,17 @@ function checkExistsUserAccount(request, response, next) {
     return next();
 }
 
+function checkCreateTodosUserAvailability(request, response, next) {
+    const { user } = request;
+
+    if (user.premiumPlan === false && user.todos.length == 10) {
+        return response.status(401).json({ Error: "Todo list is full. Please adquire our Premium Plan" })
+    };
+
+    return next()
+}
+
+// Operators
 app.post("/users", (request, response) => {
     const { name, username } = request.body;
 
@@ -35,7 +46,8 @@ app.post("/users", (request, response) => {
         id: uuidv4(),
         name,
         username,
-        todos: []
+        premiumPlan: false,
+        todos: [],
     };
 
     users.push(createdUser);
@@ -49,7 +61,7 @@ app.get("/todos", checkExistsUserAccount, (request, response) => {
     return response.json(user.todos);
 });
 
-app.post("/todos", checkExistsUserAccount, (request, response) => {
+app.post("/todos", checkExistsUserAccount, checkCreateTodosUserAvailability, (request, response) => {
     const { user } = request;
 
     const { title, deadline } = request.body;
@@ -118,4 +130,5 @@ app.delete("/todos/:id", checkExistsUserAccount, (request, response) => {
     return response.status(204).send()
 })
 
+// Server
 app.listen(9090);
