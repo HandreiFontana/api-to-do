@@ -42,10 +42,9 @@ function checkTodoExists(request, response, next) {
         return response.status(404).json({ Error: "User not exists" })
     };
 
-
     const todoIsFromUser = findUserWithUsername.todos.find(todo => todo.id === id);
     if (!todoIsFromUser) {
-        return response.status(404).json({ Error: "To do is not from this user" })
+        return response.status(404).json({ Error: "To do not found" })
     }
 
     request.user = findUserWithUsername;
@@ -102,52 +101,30 @@ app.post("/todos", checkExistsUserAccount, checkCreateTodosUserAvailability, (re
 });
 
 app.put("/todos/:id", checkTodoExists, (request, response) => {
-    const { user } = request;
+    const { todo } = request;
 
     const { title, deadline } = request.body;
 
-    const { id } = request.params;
-
-    const findToDoWithId = user.todos.find((todo) => todo.id === id);
-
-    if(!findToDoWithId) {
-        return response.status(404).json({ Error: "Id not found" })
-    };
-
-    findToDoWithId.title = title;
-    findToDoWithId.deadline = new Date(deadline);
+    todo.title = title;
+    todo.deadline = new Date(deadline);
 
     return response.status(201).send()
 });
 
-app.patch("/todos/:id/done", checkExistsUserAccount, (request, response) => {
-    const { user } = request;
+app.patch("/todos/:id/done", checkTodoExists, (request, response) => {
+    const { todo } = request;
 
-    const { id } = request.params;
-
-    const findToDoWithId = user.todos.find((todo) => todo.id === id);
-
-    if(!findToDoWithId) {
-        return response.status(404).json({ Error: "Id not found" })
-    };
-
-    findToDoWithId.done = true;
+    todo.done = true;
 
     return response.status(201).send()
 });
 
-app.delete("/todos/:id", checkExistsUserAccount, (request, response) => {
-    const { user } = request;
+app.delete("/todos/:id", checkTodoExists, (request, response) => {
+    const { user, todo } = request;
 
-    const { id } = request.params;
+    const indexOfTodo = user.todos.indexOf(todo); // Única forma de fazer funcionar.
 
-    const findToDoWithId = user.todos.find((todo) => todo.id === id);
-
-    if(!findToDoWithId) {
-        return response.status(404).json({ Error: "Id not found" })
-    };
-
-    user.todos.splice(findToDoWithId, 1)
+    user.todos.splice(indexOfTodo, 1)
 
     return response.status(204).send()
 })
